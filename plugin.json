@@ -1,0 +1,7 @@
+{
+  "name": "slim",
+  "description": "Local-only token-saving plugin for Claude Code and Grok: smart Search, batch Edit, code symbol index, and flat-file savings telemetry. Pure JS, no native modules. No login, no third-party services.",
+  "version": "0.8.38",
+  "author": { "name": "LCBO" },
+  "homepage": "https://codecondense.com"
+}
