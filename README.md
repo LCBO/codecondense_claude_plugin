@@ -112,6 +112,34 @@ With CodeCondense:      Edit({ edits: [file A, file B, file C, file D, file E] }
 
 Every edit is guarded: exact-match validation, pre-write backups, shrink fuse, empty-write fuse, symlink guard, Jupyter notebook support.
 
+Additional edit modes beyond exact string replace:
+- **`regex: true`** — `old_string` as a JS regex (dotAll + multiline), `$1`/`$2` backrefs, Serena-style `$!1` compat
+- **`insert_at_line: N`** — pure insertion before line N without needing to know surrounding text
+- **`file#N-M`** — delete or replace a line range directly
+
+---
+
+### 🔎 Symbols — LSP-powered code intelligence
+
+```
+Without CodeCondense:   Search → get line:char → Symbols op:references → Read × N refs
+                        5+ calls
+
+With CodeCondense:      Symbols({ op: "references", symbol: "processPayment",
+                                  include_snippets: true })
+                        1 call — name resolved + context lines embedded
+```
+
+LSP semantic operations without line numbers:
+- **`op:body`** — get a named symbol's full source body (no overview + Read needed)
+- **`op:references`** with `include_snippets:true` — each hit includes surrounding context lines, eliminating follow-up Reads
+- **`op:definition|references`** with `symbol:"name"` — resolves coordinates internally, no prior Search needed
+- **`op:rename`** — rename a symbol across the entire codebase via LSP
+- **`op:replace_body`** — replace a function/class body by name, no line numbers
+- **`op:safe_delete`** — deletes a symbol only when zero references exist
+
+Requires an LSP server configured in `~/.slim/lsp.json` (optional — all other tools work without it).
+
 ---
 
 ### 🔬 Investigate — the search-everything command
