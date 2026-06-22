@@ -217,6 +217,97 @@ export async function findSymbol({ file, symbol, root }) {
   return findSymbolRange(syms, symbol);
 }
 
+// Pure helper: extract a symbol body from pre-split lines + LSP range.
+// Exported for unit testing without a live LSP server.
+export function extractBodyFromLines(lines, range) {
+  const { start, end } = range;
+  return lines.slice(start.line, end.line + 1)
+    .map((l, i) => {
+      const last = end.line - start.line;
+      if (i === 0 && i === last) return l.slice(start.character, end.character);
+      if (i === 0) return l.slice(start.character);
+      if (i === last) return l.slice(0, end.character);
+      return l;
+    })
+    .join("\n");
+}
+
+// Pure helper: build a snippet around a reference line (0-based refLine).
+// Returns numbered lines: "42  <source>". Exported for unit testing.
+export function extractSnippet(lines, refLine, contextLines = 3) {
+  const from = Math.max(0, refLine - contextLines);
+  const to = Math.min(lines.length - 1, refLine + contextLines);
+  return lines.slice(from, to + 1)
+    .map((l, i) => `${from + i + 1}  ${l}`)
+    .join("\n");
+}
+
+// Return the source text of a named symbol's body (its full range from the file).
+export async function symbolBody({ file, symbol, root }) {
+  const found = await findSymbol({ file, symbol, root });
+  if (!found) throw new Error(`symbol not found: ${symbol}`);
+  const abs = path.resolve(root || process.cwd(), file);
+  const text = await fs.readFile(abs, "utf8");
+  const lines = text.split("\n");
+  return {
+    body: extractBodyFromLines(lines, found.range),
+    range: found.range,
+    file: path.relative(root || process.cwd(), abs),
+  };
+}
+
+// Resolve a symbol name to its position in a file, then perform a LSP request.
+// Avoids a separate "find line+char" round-trip when the caller knows the name.
+async function resolveSymbolPosition({ file, symbol, line, character, root }) {
+  if (line != null && character != null) return { line, character };
+  if (!symbol) throw new Error("either line+character or symbol name required");
+  const found = await findSymbol({ file, symbol, root });
+  if (!found) throw new Error(`symbol not found: ${symbol}`);
+  return {
+    line: found.selectionRange?.start.line + 1 ?? found.range.start.line + 1,
+    character: found.selectionRange?.start.character ?? found.range.start.character,
+  };
+}
+
+// references() with optional inline snippet context around each hit.
+export async function referencesWithSnippets({ file, symbol, line, character, includeDeclaration = true, snippetLines = 3, root }) {
+  const pos = await resolveSymbolPosition({ file, symbol, line, character, root });
+  const raw = await references({ file, line: pos.line, character: pos.character, includeDeclaration, root });
+  if (!Array.isArray(raw)) return [];
+  const fileCache = new Map();
+  const results = [];
+  for (const loc of raw) {
+    const uri = loc.uri || loc.targetUri;
+    const r = loc.range || loc.targetSelectionRange || loc.targetRange;
+    if (!uri || !r) continue;
+    const abs = uri.startsWith("file://") ? new URL(uri).pathname : uri;
+    const rel = path.relative(root || process.cwd(), abs);
+    const refLine = r.start.line; // 0-based
+    let snippet = null;
+    try {
+      if (!fileCache.has(abs)) fileCache.set(abs, (await fs.readFile(abs, "utf8")).split("\n"));
+      const lines = fileCache.get(abs);
+      const from = Math.max(0, refLine - snippetLines);
+      const to = Math.min(lines.length - 1, refLine + snippetLines);
+      snippet = lines.slice(from, to + 1)
+        .map((l, i) => `${from + i + 1}  ${l}`)
+        .join("\n");
+    } catch { /* file unreadable — return location only */ }
+    results.push({ location: `${rel}:${refLine + 1}:${r.start.character}`, snippet });
+  }
+  return results;
+}
+
+// definition() / references() with name-based position resolution.
+export async function definitionByName({ file, symbol, line, character, root }) {
+  const pos = await resolveSymbolPosition({ file, symbol, line, character, root });
+  return await definition({ file, line: pos.line, character: pos.character, root });
+}
+export async function referencesByName({ file, symbol, line, character, includeDeclaration = true, root }) {
+  const pos = await resolveSymbolPosition({ file, symbol, line, character, root });
+  return await references({ file, line: pos.line, character: pos.character, includeDeclaration, root });
+}
+
 export async function implementations({ file, line, character, root }) {
   const { s, abs } = await prep(file, root);
   return await s.send("textDocument/implementation", posKey(abs, line, character));
