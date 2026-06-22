@@ -1,0 +1,49 @@
+{
+  "name": "slimmer",
+  "version": "0.8.43",
+  "description": "Local token-saving Claude Code plugin",
+  "type": "module",
+  "private": true,
+  "keywords": [
+    "slim",
+    "slimmer",
+    "slim-fast",
+    "slimline",
+    "slim-shady",
+    "condense",
+    "compressed",
+    "lean",
+    "lean-mean-machine",
+    "trim",
+    "token-diet",
+    "token-saving",
+    "context-compression",
+    "mcp",
+    "claude-code",
+    "total-recall",
+    "memento",
+    "wall-e",
+    "limitless",
+    "inception",
+    "the-prestige",
+    "mission-impossible",
+    "top-gun",
+    "minority-report",
+    "office-space",
+    "the-matrix",
+    "blade-runner"
+  ],
+  "bin": {
+    "slim": "./cli/slim.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@vscode/ripgrep": "^1.17.1",
+    "better-sqlite3": "^12.10.0",
+    "tree-sitter-wasms": "^0.1.13",
+    "web-tree-sitter": "~0.24.7"
+  }
+}

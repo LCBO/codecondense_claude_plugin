@@ -1,0 +1,11 @@
+{
+  "name": "slim-marketplace",
+  "owner": { "name": "LCBO" },
+  "plugins": [
+    {
+      "name": "slim",
+      "source": { "source": "github", "repo": "LCBO/codecondense_claude_plugin" },
+      "description": "Local token-saving Claude Code plugin"
+    }
+  ]
+}

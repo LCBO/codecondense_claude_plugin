@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "slim": {
+      "command": "node",
+      "args": ["--no-warnings=ExperimentalWarning", "servers/code-server.js"]
+    }
+  }
+}

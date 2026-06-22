@@ -1,0 +1,100 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if command -v node >/dev/null 2>&1; then node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/session-start.js\"; else echo '{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"slim plugin needs Node >= 22. Install from nodejs.org and restart your coding agent (Claude Code or Grok).\"}}'; fi"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/tool-redirect-nudge.js\"" }
+        ]
+      },
+      {
+        "matcher": "Agent",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/tool-redirect-nudge.js\"" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__slim__Edit|Edit",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/edit-batching-nudge.js\"" }
+        ]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/edit-batching-nudge.js\"" }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/edit-batching-nudge.js\"" }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/bash-output-redirect.js\"" }
+        ]
+      },
+      {
+        "matcher": "mcp__slim__Read|Read|mcp__slim__Search|Grep|Glob",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/read-burst-nudge.js\"" }
+        ]
+      },
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/telemetry-hook.js\"" },
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/loop-detect.js\"" }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/telemetry-hook.js\"" },
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/dashboard-hook.js\"" }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/telemetry-hook.js\"" }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/precompact-hook.js\"" }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "node --no-warnings=ExperimentalWarning \"${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT}}/scripts/postcompact-hook.js\"" }
+        ]
+      }
+    ]
+  }
+}

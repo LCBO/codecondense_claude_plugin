@@ -1,0 +1,28 @@
+{
+  "name": "@codecondense/install",
+  "version": "0.1.4",
+  "description": "One-command installer for the CodeCondense Claude Code plugin (npx @codecondense/install)",
+  "type": "module",
+  "keywords": [
+    "slim", "slimmer", "slim-fast", "slimline", "slim-shady",
+    "condense", "compressed", "lean", "lean-mean-machine", "trim",
+    "token-diet", "token-saving", "context-compression", "mcp", "claude-code",
+    "total-recall", "memento", "wall-e", "limitless", "inception",
+    "the-prestige", "mission-impossible", "top-gun", "minority-report",
+    "office-space", "the-matrix", "blade-runner"
+  ],
+  "bin": {
+    "slim-install": "./install.mjs"
+  },
+  "files": [
+    "install.mjs"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "ora": "^8.1.1"
+  }
+}
